@@ -4,6 +4,7 @@ const { toJWT } = require("../auth/jwt");
 const authMiddleware = require("../auth/middleware");
 const User = require("../models/").user;
 const Space = require("../models/").space;
+const story = require("../models/").story;
 const { SALT_ROUNDS } = require("../config/constants");
 
 const router = new Router();
@@ -27,8 +28,11 @@ router.post("/login", async (req, res, next) => {
     }
 
     delete user.dataValues["password"]; // don't send back the password hash
+
+    const space = await Space.findByPk(user.id, {include: story});
+
     const token = toJWT({ userId: user.id });
-    return res.status(200).send({ token, user: user.dataValues });
+    return res.status(200).send({ token, user: user.dataValues, space: space });
   } catch (error) {
     console.log(error);
     return res.status(400).send({ message: "Something went wrong, sorry" });
@@ -60,7 +64,7 @@ router.post("/signup", async (req, res) => {
 
     const token = toJWT({ userId: newUser.id });
 
-    res.status(201).json({ token, user: newUser.dataValues, someSpace: newSpace.dataValues });
+    res.status(201).json({ token, user: newUser.dataValues, space: newSpace.dataValues });
   } catch (error) {
     if (error.name === "SequelizeUniqueConstraintError") {
       return res
@@ -78,7 +82,8 @@ router.post("/signup", async (req, res) => {
 router.get("/me", authMiddleware, async (req, res) => {
   // don't send back the password hash
   delete req.user.dataValues["password"];
-  res.status(200).send({ ...req.user.dataValues });
+  const space = await Space.findByPk(req.user.dataValues["id"], {include: story});
+  res.status(200).send({ ...req.user.dataValues, space: space });
 });
 
 module.exports = router;
