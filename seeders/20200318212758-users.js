@@ -55,7 +55,7 @@ module.exports = {
 
     //seed stories
     await queryInterface.bulkInsert(
-      "storys",
+      "stories",
       [
         {
           name: "story 1",
@@ -90,6 +90,6 @@ module.exports = {
   down: async (queryInterface, Sequelize) => {
     await queryInterface.bulkDelete("users", null, {});
     await queryInterface.bulkDelete("spaces", null, {});
-    await queryInterface.bulkDelete("storys", null, {});
+    await queryInterface.bulkDelete("stories", null, {});
   },
 };
