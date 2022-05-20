@@ -57,7 +57,8 @@ router.post("/signup", async (req, res) => {
       description: "",
       backgroundColor: "",
       color: "",
-      userId: newUser.id
+      userId: newUser.id,
+      stories: []
     });
 
     delete newUser.dataValues["password"]; // don't send back the password hash
@@ -82,8 +83,9 @@ router.post("/signup", async (req, res) => {
 router.get("/me", authMiddleware, async (req, res) => {
   // don't send back the password hash
   delete req.user.dataValues["password"];
+  console.log(req.user.dataValues);
   const space = await Space.findByPk(req.user.dataValues["id"], {include: story});
-  res.status(200).send({ ...req.user.dataValues, space: space });
+  res.status(200).send({ profile: req.user.dataValues, space: space });
 });
 
 module.exports = router;
