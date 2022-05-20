@@ -1,8 +1,9 @@
 const story = require("../models").story;
+const authMiddleware = require("../auth/middleware");
 const { Router } = require("express");
 const router = new Router();
 
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
   try {
     const { spaceId, name, content, imageURL } = req.body;
 
@@ -12,14 +13,13 @@ router.post("/", async (req, res) => {
         .send({ message: "missing input" });
     }
 
-    await story.create({
+    const newStory = await story.create({
       name: name,
       content: content,
       imageURL: imageURL,
       spaceId: spaceId
     })
-
-    res.send(story);
+    res.send(newStory.dataValues);
 
   } catch (error) {
     console.log(error);
